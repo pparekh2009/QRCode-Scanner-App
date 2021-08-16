@@ -1,26 +1,24 @@
 package com.priyanshparekh.qrcodescanner;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.FileProvider;
-
-import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
+
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -45,13 +43,23 @@ public class GenerateQRActivity extends AppCompatActivity {
         save_btn = findViewById(R.id.save_btn);
         share_btn = findViewById(R.id.share_btn);
 
+        ActionBar actionBar = getSupportActionBar();
+        ColorDrawable colorDrawable = new ColorDrawable(Color.parseColor("#1E83DC"));
+        actionBar.setBackgroundDrawable(colorDrawable);
+
+        save_btn.setVisibility(View.INVISIBLE);
+        share_btn.setVisibility(View.INVISIBLE);
+
+
         generate_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 String data = qrValue.getText().toString();
                 generateQR(data);
-//                QRGEncoder qrgEncoder = new QRGEncoder(data, null, QRGContents.Type.TEXT, 10);
-//                Bitmap qrgBits = qrgEncoder.encodeAsBitmap();
+
+                save_btn.setVisibility(View.VISIBLE);
+                share_btn.setVisibility(View.VISIBLE);
             }
         });
 
@@ -91,35 +99,6 @@ public class GenerateQRActivity extends AppCompatActivity {
     }
 
     public void saveQRImage(Bitmap bitmap) throws IOException {
-//        ContextWrapper cw = new ContextWrapper(getApplicationContext());
-//        File directory = cw.getDir("imgDir", Context.MODE_PRIVATE);
-//        File file = new File(directory, "UniqueFileName" + ".png");
-//        if (!file.exists()) {
-//            Log.d("path", file.toString());
-//            FileOutputStream fos = null;
-//            try {
-//                fos = new FileOutputStream(file);
-//                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-//                fos.flush();
-//                fos.close();
-//            }
-//            catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
-
-
-//        FileOutputStream outStream = null;
-//        File sdCard = Environment.getExternalStorageDirectory();
-//        File dir = new File(sdCard.getAbsolutePath() + "/QRCodeScanner");
-//        dir.mkdirs();
-//
-//        String fileName = String.format("%d.png", System.currentTimeMillis());
-//        File outFile = new File(dir, fileName);
-//        outStream = new FileOutputStream(outFile);
-//        bitmap.compress(Bitmap.CompressFormat.PNG, 100, outStream);
-//        outStream.flush();
-//        outStream.close();
         String ImagePath = MediaStore.Images.Media.insertImage(getContentResolver(), bitmap, "qrCode", "qrCode");
         Uri uri = Uri.parse(ImagePath);
     }
@@ -146,8 +125,7 @@ public class GenerateQRActivity extends AppCompatActivity {
         Uri uri = getImageToShare(bitmap);
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.putExtra(Intent.EXTRA_STREAM, uri);
-        intent.putExtra(Intent.EXTRA_TEXT, "Sharing Image");
-        intent.putExtra(Intent.EXTRA_SUBJECT, "Subject here");
+        intent.putExtra(Intent.EXTRA_SUBJECT, "QR Code");
         intent.setType("image/png");
         startActivity(Intent.createChooser(intent, "Share via"));
     }
